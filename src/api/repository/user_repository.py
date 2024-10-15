@@ -6,7 +6,7 @@ from src.api.config.__init__ import settings
 def get_db_connection():
     """
     Establishes a connection to the database, using the DATABASE_URL environment
-    variable or the default setting for the current environment.
+    variable or the default setting for the cu_by_idrrent environment.
 
     Returns a psycopg2 connection object.
     """
@@ -32,3 +32,12 @@ def check_db_connection():
         return "Connected"
     except Exception as e:
         return f"Failed to connect to database: {e}"
+
+class UserRepository:
+    def get_user_by_id(self, user_id: int):
+        fake_users = {
+            1: {'id': 1, 'name': 'Ann', 'email': 'Ann@example.com'},
+            2: {'id': 2, 'name': 'AJ', 'email': 'AJ@example.com'},
+        }
+        return fake_users.get(user_id)  # Returns None if user_id is not found
+
