@@ -1,6 +1,8 @@
 import psycopg2
 
 from src.api.config.__init__ import settings
+from psycopg.rows import dict_row
+
 
 
 def get_db_connection():
@@ -34,10 +36,16 @@ def check_db_connection():
         return f"Failed to connect to database: {e}"
 
 class UserRepository:
+    def __init__(self, db_url: str):
+        self.db_url = db_url 
+
+    def get_connection(self):
+        return psycopg.connect(self.db_url, row_factory=dict_row)
+
     def get_user_by_id(self, user_id: int):
-        fake_users = {
-            1: {'id': 1, 'name': 'Ann', 'email': 'Ann@example.com'},
-            2: {'id': 2, 'name': 'AJ', 'email': 'AJ@example.com'},
-        }
-        return fake_users.get(user_id)  # Returns None if user_id is not found
+        with self.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT id, name, email FROM users WHERE id = %s", (user_id,))
+                user = cursor.fetchone()  
+                return user  
 

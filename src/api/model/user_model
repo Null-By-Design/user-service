@@ -1,6 +1,12 @@
 from pydantic import BaseModel
+from datetime import date
 
 class User(BaseModel):
     id: int
     name: str
+    age: int
+    dob: date
+    address: str
     email: str
+    phone_number: str
+    location: str
