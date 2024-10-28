@@ -8,7 +8,7 @@ from psycopg.rows import dict_row
 def get_db_connection():
     """
     Establishes a connection to the database, using the DATABASE_URL environment
-    variable or the default setting for the cu_by_idrrent environment.
+    variable or the default setting for the current environment.
 
     Returns a psycopg2 connection object.
     """
@@ -48,4 +48,3 @@ class UserRepository:
                 cursor.execute("SELECT id, name, email FROM users WHERE id = %s", (user_id,))
                 user = cursor.fetchone()  
                 return user  
-
