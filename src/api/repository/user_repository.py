@@ -45,6 +45,13 @@ class UserRepository:
     def get_user_by_id(self, user_id: int):
         with self.get_connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute("SELECT id, name, email FROM users WHERE id = %s", (user_id,))
+                cursor.execute("""
+                    SELECT id, username, email, first_name AS "firstName", last_name AS "lastName", 
+                           phone_number AS "phoneNumber", address, role, status, 
+                           last_login_at AS "lastLoginAt", created_at AS "createdAt", 
+                           updated_at AS "updatedAt"
+                    FROM users 
+                    WHERE id = %s
+                """, (user_id,))
                 user = cursor.fetchone()  
-                return user  
+                return user
