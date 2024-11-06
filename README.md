@@ -20,7 +20,6 @@ The User Service is a microservice that handles user-related information, includ
   - [Deployment](#deployment)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Getting Started
 
@@ -48,7 +47,7 @@ This section will guide you through setting up and running the project.
 3. Activate the virtual environment:
    - On Windows:
      ```
-     venv\Scripts\activate
+     env\Scripts\activate
      ```
    - On macOS and Linux:
      ```bash
@@ -109,13 +108,13 @@ These pages provide detailed information about each endpoint, including request/
 To run the tests:
 
 ```bash
-pytest
+pytest tests
 ```
 
 For more verbose output:
 
 ```bash
-pytest -v
+pytest tests -v
 ```
 
 ## Advanced Topics

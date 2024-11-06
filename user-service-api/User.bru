@@ -1,0 +1,30 @@
+meta {
+  name: User
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/api/v1/user
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "string",
+    "email": "user@example.com",
+    "firstName": "string",
+    "lastName": "string",
+    "phoneNumber": "string",
+    "address": {
+      "street": "string",
+      "city": "string",
+      "state": "string",
+      "country": "string",
+      "postalCode": "string"
+    },
+    "role": "GUEST",
+    "status": "ACTIVE"
+  }
+}

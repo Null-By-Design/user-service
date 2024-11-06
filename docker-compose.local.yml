@@ -8,18 +8,38 @@ services:
     volumes:
       - ./src:/app/src
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/mydatabase
+      - DATABASE_URL=postgresql://user:password@db:5432/users
+    networks:
+      - my_network
     depends_on:
       - db
 
   db:
     image: postgres:13
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=mydatabase
+      - POSTGRES_DB=user
+    networks:
+      - my_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "8080:80"
+    networks:
+      - my_network
 
 volumes:
   postgres_data:
+
+networks:
+  my_network:
+    driver: bridge
