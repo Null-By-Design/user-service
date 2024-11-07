@@ -44,7 +44,11 @@ class UserRepository:
         try:
             with DatabasePool.get_connection() as conn:
                 with conn.cursor(cursor_factory=DictCursor) as cur:
-                    address_id = self._insert_address(cur, user.address)
+                    address_id = (
+                        None
+                        if user.address is None
+                        else self._insert_address(cur, user.address)
+                    )
                     result = self._insert_user(cur, user, address_id)
                     conn.commit()
 

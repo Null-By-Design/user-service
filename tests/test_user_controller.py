@@ -12,7 +12,7 @@ from tests.test_data import (
     user_request_no_email_phone_no_json,
     user_request_valid_json,
     user_response_valid_json,
-    user_valid,
+    user_minimal,
 )
 
 
@@ -47,7 +47,7 @@ def valid_user_request():
 
 @pytest.fixture
 def valid_user_service_response():
-    return user_valid
+    return user_minimal
 
 
 @pytest.mark.asyncio
