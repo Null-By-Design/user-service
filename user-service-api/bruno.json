@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "user-service-api",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

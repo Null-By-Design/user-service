@@ -1,8 +1,12 @@
-from src.api.model.health_check import HealthCheckResponse
+from src.api.model.schemas import HealthCheckResponse
+from src.api.repository.user_repository import UserRepository
 from src.api.repository import user_repository
 
 
 class HealthService:
+    def __init__(self, user_repository: UserRepository):
+        self.user_repository = user_repository
+
     def check_health(self):
         """
         Checks the health of the User Service, by attempting to connect to
@@ -17,7 +21,7 @@ class HealthService:
         """
         response = HealthCheckResponse(status="Healthy")
         dependencies = {
-            "database": user_repository.check_db_connection(),
+            "database": self.user_repository.check_db_connection(),
         }
         for name, status in dependencies.items():
             if status != "Connected":
