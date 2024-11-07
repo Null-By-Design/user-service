@@ -1,6 +1,8 @@
-from psycopg2.pool import SimpleConnectionPool
 from contextlib import contextmanager
 from typing import Generator
+
+from psycopg2.pool import SimpleConnectionPool
+
 from src.api.config import settings
 
 

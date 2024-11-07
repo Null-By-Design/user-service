@@ -1,6 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Python Debugger: FastAPI",
             "type": "debugpy",
@@ -11,6 +12,16 @@
                 "--reload"
             ],
             "jinja": true
+        },
+        {
+            "name": "Python Debugger: Run Pytest",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "tests/test_health_controller.py::test_get_health_status_ok"  // Update this with the specific test
+            ],
+            "justMyCode": false
         }
     ]
 }
