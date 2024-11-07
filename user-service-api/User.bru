@@ -12,8 +12,19 @@ post {
 
 body:json {
   {
-    "firstName": "string",
-    "email": "string@gmail.com",
-    "phoneNumber": "string"
-  }
+      "username": "string",
+      "email": "user@example.com",
+      "firstName": "string",
+      "lastName": "string",
+      "phoneNumber": "string",
+      "address": {
+        "street": "string",
+        "city": "string",
+        "state": "string",
+        "country": "string",
+        "postalCode": "string"
+      },
+      "role": "GUEST",
+      "status": "ACTIVE"
+    }
 }
