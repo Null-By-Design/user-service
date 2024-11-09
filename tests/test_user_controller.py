@@ -8,11 +8,11 @@ from src.api.controller.user_controller import router
 from src.api.dependencies.provider import get_user_service
 from src.api.service.user_service import UserService
 from tests.test_data import (
+    user_minimal,
     user_request_bad_email_json,
     user_request_no_email_phone_no_json,
     user_request_valid_json,
     user_response_valid_json,
-    user_minimal,
 )
 
 

@@ -1,8 +1,6 @@
-from datetime import datetime
-
+from api.model.domain import Address, User
 from src.api.model.enum import UserRole, UserStatus
 from src.api.model.schemas import HealthCheckResponse
-from src.api.model.user import Address, User
 
 # HEALTH TEST DATA
 health_check_valid_service_response = HealthCheckResponse(status="OK")
@@ -50,24 +48,24 @@ user_minimal = User(
 )
 
 user = User(
-        id=1,
-        username="testuser",
-        email="test@example.com",
-        first_name="Test",
-        last_name="User",
-        phone_number="1234567890",
-        address=Address(
-            street="123 Main St",
-            city="Anytown",
-            state="CA",
-            postal_code="12345",
-            country="USA",
-        ),
-        role="user",
-        status="active",
-        created_at="2024-11-07T18:22:38.816855Z",
-        updated_at="2024-11-07T18:22:38.816855Z",
-    )
+    id=1,
+    username="testuser",
+    email="test@example.com",
+    first_name="Test",
+    last_name="User",
+    phone_number="1234567890",
+    address=Address(
+        street="123 Main St",
+        city="Anytown",
+        state="CA",
+        postal_code="12345",
+        country="USA",
+    ),
+    role="user",
+    status="active",
+    created_at="2024-11-07T18:22:38.816855Z",
+    updated_at="2024-11-07T18:22:38.816855Z",
+)
 
 address = Address(
     street="123 Test St",
