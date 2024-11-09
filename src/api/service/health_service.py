@@ -1,6 +1,6 @@
 from src.api.model.schemas import HealthCheckResponse
-from src.api.repository.user_repository import UserRepository
 from src.api.repository import user_repository
+from src.api.repository.user_repository import UserRepository
 
 
 class HealthService:

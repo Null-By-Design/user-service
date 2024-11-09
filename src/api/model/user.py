@@ -1,22 +1,22 @@
 from datetime import datetime, timezone
 from typing import Optional
 
-from src.api.model.enum import UserRole, UserStatus
 from src.api.model.address import Address
+from src.api.model.enum import UserRole, UserStatus
 
 
 class User:
     def __init__(
         self,
-        username: str,
-        email: str,
-        first_name: str,
-        last_name: str,
-        phone_number: str,
-        address: Address,
+        id: Optional[int] = None,
+        username: Optional[str] = None,
+        email: Optional[str] = None,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+        phone_number: Optional[str] = None,
+        address: Optional[Address] = None,
         role: UserRole = UserRole.GUEST,
         status: UserStatus = UserStatus.ACTIVE,
-        id: Optional[int] = None,
         last_login_at: Optional[datetime] = None,
         created_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None,

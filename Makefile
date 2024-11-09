@@ -29,9 +29,13 @@ coverage: venv install test
 	coverage run -m pytest tests
 	coverage report tests
 
-lint:
+lint-check:
 	black . --check
 	isort . --check
+
+lint:
+	black .
+	isort .
 
 clean:
 	rm -rf .\.pytest_cache _pycache__

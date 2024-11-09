@@ -1,9 +1,10 @@
-from fastapi import Depends
 from typing import Dict
 
+from fastapi import Depends
+
 from src.api.repository.user_repository import UserRepository
-from src.api.service.user_service import UserService
 from src.api.service.health_service import HealthService
+from src.api.service.user_service import UserService
 
 
 class Providers:

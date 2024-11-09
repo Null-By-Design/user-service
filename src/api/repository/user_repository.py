@@ -1,12 +1,13 @@
 from typing import Optional
+
 from fastapi import HTTPException, status
 from psycopg2 import errors
 from psycopg2.extras import DictCursor
 
-from src.api.model.user import User
-from src.api.model.address import Address
 from src.api.config.database import DatabasePool
 from src.api.mapper.user_mapper import UserMapper
+from src.api.model.address import Address
+from src.api.model.user import User
 
 
 class UserRepository:
@@ -43,7 +44,11 @@ class UserRepository:
         try:
             with DatabasePool.get_connection() as conn:
                 with conn.cursor(cursor_factory=DictCursor) as cur:
-                    address_id = self._insert_address(cur, user.address)
+                    address_id = (
+                        None
+                        if user.address is None
+                        else self._insert_address(cur, user.address)
+                    )
                     result = self._insert_user(cur, user, address_id)
                     conn.commit()
 
@@ -55,7 +60,7 @@ class UserRepository:
 
         except errors.UniqueViolation as e:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_409_CONFLICT,
                 detail=f"User already exists: {str(e)}",
             )
         except Exception as e:
@@ -80,7 +85,7 @@ class UserRepository:
     def _insert_user(self, cur, user: User, address_id: int) -> dict:
         """Inserts the user and returns the database result row."""
         user_query = """
-            INSERT INTO "users" 
+            INSERT INTO "user" 
             (username, email, first_name, last_name, phone_number, 
             address_id, role, status, created_at, updated_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)

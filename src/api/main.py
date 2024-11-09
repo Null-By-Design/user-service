@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 
-from src.api.controller import health_controller
-from src.api.controller import user_controller
+from src.api.controller import health_controller, user_controller
 
 app = FastAPI()
 

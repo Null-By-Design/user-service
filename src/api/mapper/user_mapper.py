@@ -1,10 +1,7 @@
-from src.api.model.user import User
 from src.api.model.address import Address
-from src.api.model.schemas import (
-    UserRegistrationRequest,
-    Address as UserRegistrationRequestAddress,
-    UserResponse,
-)
+from src.api.model.schemas import Address as UserRegistrationRequestAddress
+from src.api.model.schemas import UserRegistrationRequest, UserResponse
+from src.api.model.user import User
 
 
 class UserMapper:
@@ -19,19 +16,24 @@ class UserMapper:
         Returns:
             User: The mapped User object.
         """
+        address = (
+            None
+            if request.address is None
+            else Address(
+                street=request.address.street,
+                city=request.address.city,
+                state=request.address.state,
+                country=request.address.country,
+                postal_code=request.address.postalCode,
+            )
+        )
         return User(
             username=request.username,
             email=request.email,
             first_name=request.firstName,
             last_name=request.lastName,
             phone_number=request.phoneNumber,
-            address=Address(
-                street=request.address.street,
-                city=request.address.city,
-                state=request.address.state,
-                country=request.address.country,
-                postal_code=request.address.postalCode,
-            ),
+            address=address,
             role=request.role,
             status=request.status,
         )
@@ -47,6 +49,17 @@ class UserMapper:
         Returns:
             UserResponse: The mapped UserResponse object.
         """
+        address = (
+            None
+            if user.address is None
+            else UserRegistrationRequestAddress(
+                street=user.address.street,
+                city=user.address.city,
+                state=user.address.state,
+                country=user.address.country,
+                postalCode=user.address.postal_code,
+            )
+        )
         return UserResponse(
             id=user.id,
             username=user.username,
@@ -54,13 +67,7 @@ class UserMapper:
             firstName=user.first_name,
             lastName=user.last_name,
             phoneNumber=user.phone_number,
-            address=UserRegistrationRequestAddress(
-                street=user.address.street,
-                city=user.address.city,
-                state=user.address.state,
-                country=user.address.country,
-                postalCode=user.address.postal_code,
-            ),
+            address=address,
             role=user.role,
             status=user.status,
             lastLoginAt=user.last_login_at,

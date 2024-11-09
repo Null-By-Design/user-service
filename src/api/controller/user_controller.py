@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.api.dependencies.provider import get_user_service
+from src.api.mapper.user_mapper import UserMapper
 from src.api.model.schemas import UserRegistrationRequest, UserResponse
 from src.api.service.user_service import UserService
-from src.api.mapper.user_mapper import UserMapper
-from src.api.dependencies.provider import get_user_service
 
 router = APIRouter(prefix="/api/v1")
 

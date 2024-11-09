@@ -1,6 +1,8 @@
 {
     "version": "0.2.0",
     "configurations": [
+
+
         {
             "name": "Python Debugger: FastAPI",
             "type": "debugpy",
@@ -11,6 +13,16 @@
                 "--reload"
             ],
             "jinja": true
+        },
+        {
+            "name": "Python Debugger: Run Pytest",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "tests/test_user_service.py::test_register_user_failed"  // Update this with the specific test
+            ],
+            "justMyCode": false
         }
     ]
 }

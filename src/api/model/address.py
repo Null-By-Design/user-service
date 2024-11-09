@@ -4,12 +4,12 @@ from typing import Optional
 class Address:
     def __init__(
         self,
-        street: str,
-        city: str,
-        state: str,
-        country: str,
-        postal_code: str,
         id: Optional[int] = None,
+        street: Optional[str] = None,
+        city: Optional[str] = None,
+        state: Optional[str] = None,
+        country: Optional[str] = None,
+        postal_code: Optional[str] = None,
     ):
         self.id = id
         self.street = street
