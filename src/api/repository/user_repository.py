@@ -6,8 +6,7 @@ from psycopg2.extras import DictCursor
 
 from src.api.config.database import DatabasePool
 from src.api.mapper.user_mapper import UserMapper
-from src.api.model.address import Address
-from src.api.model.user import User
+from src.api.model.domain import Address, User
 
 
 class UserRepository:

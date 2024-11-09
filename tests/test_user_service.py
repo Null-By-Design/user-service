@@ -4,8 +4,6 @@ import pytest
 from fastapi import HTTPException
 from psycopg2 import errors
 
-from src.api.model.address import Address
-from src.api.model.user import User
 from src.api.repository.user_repository import UserRepository
 from src.api.service.user_service import UserService
 from tests.test_data import user
