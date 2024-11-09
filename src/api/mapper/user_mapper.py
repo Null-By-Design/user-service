@@ -1,4 +1,4 @@
-from api.model.domain import Address, User
+from src.api.model.domain import Address, User
 from src.api.model.schemas import Address as UserRegistrationRequestAddress
 from src.api.model.schemas import UserRegistrationRequest, UserResponse
 

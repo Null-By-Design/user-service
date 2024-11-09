@@ -1,4 +1,4 @@
-from api.model.domain import Address, User
+from src.api.model.domain import Address, User
 from src.api.model.enum import UserRole, UserStatus
 from src.api.model.schemas import HealthCheckResponse
 

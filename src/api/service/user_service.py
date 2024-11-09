@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 
-from api.model.domain import User
+from src.api.model.domain import User
 from src.api.repository.user_repository import UserRepository
 
 
