@@ -72,3 +72,43 @@ async def test_register_user_record_exists(
     assert exc_info.value.status_code == 500
     assert exc_info.value.detail == "User already exists"
     mock_user_repository.save.assert_called_once_with(mock_user)
+
+@pytest.fixture
+def mock_user():
+    # Return a mock user object (replace with your actual mock user)
+    return {
+        "id": 1,
+        "username": "Ann",
+        "email": "Ann.aj@example.com",
+        "first_name": "Ann",
+        "last_name": "aj",
+        "phone_number": "94872",
+        "role": "user",
+        "status": "active",
+    }
+
+@pytest.mark.asyncio
+async def test_get_user_by_id_success(user_service, mock_user_repository, mock_user):
+    # Mock the repository method to return a mock user
+    mock_user_repository.get_user_by_id.return_value = mock_user
+
+    # Call the service method
+    user = await user_service.get_user_by_id(1)
+
+    # Assertions
+    assert user == mock_user
+    mock_user_repository.get_user_by_id.assert_called_once_with(1)
+
+
+@pytest.mark.asyncio
+async def test_get_user_by_id_not_found(user_service, mock_user_repository):
+    # Mock the repository method to return None (user not found)
+    mock_user_repository.get_user_by_id.return_value = None
+
+    # Call the service method and assert it raises an exception
+    with pytest.raises(HTTPException) as exc_info:
+        await user_service.get_user_by_id(999)  # Non-existent user ID
+
+    assert exc_info.value.status_code == 404
+    assert exc_info.value.detail == "User not found"
+    mock_user_repository.get_user_by_id.assert_called_once_with(999)

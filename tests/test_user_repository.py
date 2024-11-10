@@ -117,3 +117,45 @@ def test_save_user_unique_violation(
 
     assert exc_info.value.status_code == status.HTTP_409_CONFLICT
     assert "User already exists" in str(exc_info.value.detail)
+
+def test_get_user_by_id_success(user_repository, mock_db_pool, mock_db_connection, mock_db_cursor):
+    # Simulate a valid user returned from the database
+    mock_db_cursor.fetchone.return_value = {
+        "id": 1,
+        "username": "Ann",
+        "email": "ann.aj@example.com",
+        "first_name": "ann",
+        "last_name": "aj",
+        "phone_number": "94872",
+        "role": "user",
+        "status": "active",
+        "address_id": 1,
+        "last_login_at": "2024-01-01",
+        "created_at": "2024-01-01",
+        "updated_at": "2024-01-01",
+    }
+    mock_db_cursor.execute.return_value = None
+
+    # Call the repository method
+    user = user_repository.get_user_by_id(1)
+
+    # Assertions
+    assert isinstance(user, User)
+    assert user.username == "john_doe"
+    mock_db_cursor.execute.assert_called_once_with(
+        "SELECT id, username, email, first_name, last_name, phone_number, address_id, role, status, last_login_at, created_at, updated_at FROM \"user\" WHERE id = %s;", (1,)
+    )
+
+
+def test_get_user_by_id_not_found(user_repository, mock_db_pool, mock_db_connection, mock_db_cursor):
+    # Simulate no user found in the database
+    mock_db_cursor.fetchone.return_value = None
+
+    # Call the repository method
+    user = user_repository.get_user_by_id(999)  # Non-existent user ID
+
+    # Assertions
+    assert user is None
+    mock_db_cursor.execute.assert_called_once_with(
+        "SELECT id, username, email, first_name, last_name, phone_number, address_id, role, status, last_login_at, created_at, updated_at FROM \"user\" WHERE id = %s;", (999,)
+    )

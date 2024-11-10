@@ -106,3 +106,57 @@ class UserRepository:
         )
         cur.execute(user_query, user_values)
         return cur.fetchone()
+
+    def get_user_by_id(self, user_id: int) -> Optional[User]:
+        """
+        Fetch a user from the database by their ID.
+
+        Args:
+            user_id (int): The ID of the user to retrieve.
+
+        Returns:
+            Optional[User]: The user object if found, else None.
+        """
+        try:
+            with DatabasePool.get_connection() as conn:
+                with conn.cursor(cursor_factory=DictCursor) as cur:
+                    query = """
+                        SELECT id, username, email, first_name, last_name, phone_number,
+                               address_id, role, status, last_login_at, created_at, updated_at
+                        FROM "user"
+                        WHERE id = %s;
+                    """
+                    cur.execute(query, (user_id,))
+                    result = cur.fetchone()
+
+                    if result:
+                        address = self._get_address_by_id(cur, result["address_id"])
+                        return UserMapper.build_user_object(result, address)
+                    return None
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error fetching user from database: {str(e)}",
+            )
+
+    def _get_address_by_id(self, cur, address_id: int) -> Optional[Address]:
+        """Fetch the address for a user by address ID."""
+        if not address_id:
+            return None
+        address_query = """
+            SELECT street, city, state, postal_code, country
+            FROM address
+            WHERE id = %s;
+        """
+        cur.execute(address_query, (address_id,))
+        address_result = cur.fetchone()
+        if address_result:
+            return Address(
+                street=address_result["street"],
+                city=address_result["city"],
+                state=address_result["state"],
+                postal_code=address_result["postal_code"],
+                country=address_result["country"]
+            )
+        return None
