@@ -46,13 +46,13 @@ async def register_user(
     status_code=status.HTTP_200_OK,
     responses={404: {"description": "User not found"}},
 )
-async def get_user_by_id(
+async def get_user(
     id: int,
     user_service: UserService = Depends(get_user_service),
 ) -> UserResponse:
     try:
         # Call service to get user by ID
-        user = await user_service.get_user_by_id(id)
+        user = await user_service.get_user(id)
 
         # Convert domain model to response
         return UserMapper.to_response(user)

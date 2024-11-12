@@ -121,18 +121,23 @@ def test_save_user_unique_violation(
 def test_get_user_by_id_success(user_repository, mock_db_pool, mock_db_connection, mock_db_cursor):
     # Simulate a valid user returned from the database
     mock_db_cursor.fetchone.return_value = {
-        "id": 1,
-        "username": "Ann",
-        "email": "ann.aj@example.com",
-        "first_name": "ann",
-        "last_name": "aj",
-        "phone_number": "94872",
-        "role": "user",
-        "status": "active",
-        "address_id": 1,
-        "last_login_at": "2024-01-01",
-        "created_at": "2024-01-01",
-        "updated_at": "2024-01-01",
+         id=1,
+         username="testuser",
+         email="test@example.com",
+         first_name="Test",
+         last_name="User",
+         phone_number="1234567890",
+         address=Address(
+            street="123 Main St",
+            city="Anytown",
+            state="CA",
+            postal_code="12345",
+            country="USA",
+            ),
+         role="user",
+         status="active",
+         created_at="2024-11-07T18:22:38.816855Z",
+         updated_at="2024-11-07T18:22:38.816855Z",
     }
     mock_db_cursor.execute.return_value = None
 

@@ -107,7 +107,7 @@ class UserRepository:
         cur.execute(user_query, user_values)
         return cur.fetchone()
 
-    def get_user_by_id(self, user_id: int) -> Optional[User]:
+    def get_user(self, user_id: int) -> Optional[User]:
         """
         Fetch a user from the database by their ID.
 
@@ -130,7 +130,7 @@ class UserRepository:
                     result = cur.fetchone()
 
                     if result:
-                        address = self._get_address_by_id(cur, result["address_id"])
+                        address = self._get_address(cur, result["address_id"])
                         return UserMapper.build_user_object(result, address)
                     return None
 
@@ -140,16 +140,16 @@ class UserRepository:
                 detail=f"Error fetching user from database: {str(e)}",
             )
 
-    def _get_address_by_id(self, cur, address_id: int) -> Optional[Address]:
+    def _get_address(self, cur, address: int) -> Optional[Address]:
         """Fetch the address for a user by address ID."""
-        if not address_id:
+        if not address:
             return None
         address_query = """
             SELECT street, city, state, postal_code, country
             FROM address
             WHERE id = %s;
         """
-        cur.execute(address_query, (address_id,))
+        cur.execute(address_query, (address,))
         address_result = cur.fetchone()
         if address_result:
             return Address(
