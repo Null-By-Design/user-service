@@ -126,7 +126,7 @@ class UserRepository:
                         FROM "user"
                         WHERE id = %s;
                     """
-                    cur.execute(query, (user_id,))
+                    cur.execute(query, user_id)
                     result = cur.fetchone()
 
                     if result:
@@ -140,16 +140,14 @@ class UserRepository:
                 detail=f"Error fetching user from database: {str(e)}",
             )
 
-    def _get_address(self, cur, address: int) -> Optional[Address]:
+    def _get_address(self, cur, id: int) -> Optional[Address]:
         """Fetch the address for a user by address ID."""
-        if not address:
-            return None
         address_query = """
             SELECT street, city, state, postal_code, country
             FROM address
             WHERE id = %s;
         """
-        cur.execute(address_query, (address,))
+        cur.execute(address_query, (id))
         address_result = cur.fetchone()
         if address_result:
             return Address(

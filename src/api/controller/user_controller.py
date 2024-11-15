@@ -46,6 +46,7 @@ async def register_user(
     status_code=status.HTTP_200_OK,
     responses={404: {"description": "User not found"}},
 )
+
 async def get_user(
     id: int,
     user_service: UserService = Depends(get_user_service),
@@ -53,6 +54,11 @@ async def get_user(
     try:
         # Call service to get user by ID
         user = await user_service.get_user(id)
+        if not user: 
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"            
+            )
 
         # Convert domain model to response
         return UserMapper.to_response(user)
@@ -61,6 +67,6 @@ async def get_user(
         raise he
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"User not found: {str(e)}",
         )

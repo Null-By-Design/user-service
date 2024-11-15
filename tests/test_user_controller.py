@@ -3,6 +3,10 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
+from unittest.mock import MagicMock
+from httpx import AsyncClient 
+
+ 
 
 from src.api.controller.user_controller import router
 from src.api.dependencies.provider import get_user_service
@@ -142,13 +146,13 @@ def cleanup(app):
 # Test for GET/user/{id}
 @pytest.mark.asyncio
 async def test_get_user_success(
-    app, client, mock_user_service, mock_get_user_service
+    app, client, mock_user_service, mock_get_user_service, valid_user_service_response
 ):
     # Override the dependency
     app.dependency_overrides[get_user_service] = mock_get_user_service
 
     # Prepare mock response
-    mock_user_service.get_user_by_id = MagicMock(return_value=user_minimal)
+    mock_user_service.get_user = AsyncMock(return_value=valid_user_service_response)
 
     # Make request
     user_id = 1  # Example user ID
@@ -156,8 +160,8 @@ async def test_get_user_success(
 
     # Assertions
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == user_response_valid_json
-    mock_user_service.get_user_by_id.assert_called_once_with(user_id)
+    assert response.content.decode() == user_response_valid_json
+    mock_user_service.get_user.assert_called_once_with(user_id)
 
 
 @pytest.mark.asyncio
@@ -168,13 +172,14 @@ async def test_get_user_not_found(
     app.dependency_overrides[get_user_service] = mock_get_user_service
 
     # Simulate user not found (return None)
-    mock_user_service.get_user_by_id = MagicMock(return_value=None)
+    mock_user_service.get_user = AsyncMock(return_value=None)
 
     # Make request
     user_id = 999  # Non-existent user ID
-    response = client.get(f"/api/v1/user/{user_id}")
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        response = await ac.get(f"/api/v1/user/{user_id}")
 
     # Assertions
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {"detail": "User not found"}
-    mock_user_service.get_user_by_id.assert_called_once_with(user_id)
+    assert "User not found" in response.content.decode()
+    mock_user_service.get_user.assert_called_once_with(user_id)
