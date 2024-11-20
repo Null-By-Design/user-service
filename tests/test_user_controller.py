@@ -3,6 +3,10 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
+from unittest.mock import MagicMock
+from httpx import AsyncClient 
+
+ 
 
 from src.api.controller.user_controller import router
 from src.api.dependencies.provider import get_user_service
@@ -138,3 +142,44 @@ async def test_register_user_http_exception(
 def cleanup(app):
     yield
     app.dependency_overrides.clear()
+
+# Test for GET/user/{id}
+@pytest.mark.asyncio
+async def test_get_user_success(
+    app, client, mock_user_service, mock_get_user_service, valid_user_service_response
+):
+    # Override the dependency
+    app.dependency_overrides[get_user_service] = mock_get_user_service
+
+    # Prepare mock response
+    mock_user_service.get_user = AsyncMock(return_value=valid_user_service_response)
+
+    # Make request
+    user_id = 1  # Example user ID
+    response = client.get(f"/api/v1/user/{user_id}")
+
+    # Assertions
+    assert response.status_code == status.HTTP_200_OK
+    assert response.content.decode() == user_response_valid_json
+    mock_user_service.get_user.assert_called_once_with(user_id)
+
+
+@pytest.mark.asyncio
+async def test_get_user_not_found(
+    app, client, mock_user_service, mock_get_user_service
+):
+    # Override the dependency
+    app.dependency_overrides[get_user_service] = mock_get_user_service
+
+    # Simulate user not found (return None)
+    mock_user_service.get_user = AsyncMock(return_value=None)
+
+    # Make request
+    user_id = 999  # Non-existent user ID
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        response = await ac.get(f"/api/v1/user/{user_id}")
+
+    # Assertions
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert "User not found" in response.content.decode()
+    mock_user_service.get_user.assert_called_once_with(user_id)

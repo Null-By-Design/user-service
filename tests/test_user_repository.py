@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from psycopg2 import errors
 
 from src.api.repository.user_repository import UserRepository
-from tests.test_data import address, get_user, save_user_dict
+from tests.test_data import address, get_user, save_user_dict, get_user_dict
 
 
 # Test fixtures
@@ -117,3 +117,33 @@ def test_save_user_unique_violation(
 
     assert exc_info.value.status_code == status.HTTP_409_CONFLICT
     assert "User already exists" in str(exc_info.value.detail)
+
+def test_get_user_success(user_repository, mock_db_pool, mock_db_connection, mock_db_cursor):
+     # Arrange
+    mock_db_pool.get_connection.return_value = mock_db_connection
+    
+    # Simulate a valid user returned from the database
+    mock_db_cursor.fetchone.side_effect = get_user_dict
+    
+    # Call the repository method
+    user = user_repository.get_user(1)
+
+    # Assertions
+    assert user.username == "testuser"
+    mock_db_cursor.execute.assert_called()
+
+def test_get_user_not_found(user_repository, mock_db_pool, mock_db_connection, mock_db_cursor):
+    # Simulate no user found in the database
+    mock_db_cursor.fetchone.return_value = None
+
+    # Call the repository method
+    user = user_repository.get_user(999)  # Non-existent user ID
+
+    # Assertions
+    assert user is None
+    mock_db_cursor.execute.assert_called_once_with("""
+                        SELECT id, username, email, first_name, last_name, phone_number,
+                               address_id, role, status, last_login_at, created_at, updated_at
+                        FROM "user"
+                        WHERE id = %s;
+                    """, 999)

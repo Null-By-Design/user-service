@@ -34,3 +34,25 @@ class UserService:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
+
+    async def get_user(self, user_id: int) -> User:
+        """
+        Fetch a user by their ID.
+
+        Args:
+            user_id (int): The ID of the user to fetch.
+
+        Returns:
+            User: The user with the given ID.
+
+        Raises:
+            HTTPException: If the user cannot be found (404).
+        """
+        try:
+            user = self.user_repository.get_user(user_id)
+            return user
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error fetching user: {str(e)}",
+            )
