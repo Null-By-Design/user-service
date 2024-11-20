@@ -109,3 +109,28 @@ save_user_dict = [
         "updated_at": "2024-11-07T18:22:38.816855Z",
     },
 ]
+
+get_user_dict = [
+    {
+        "id": 1,
+        "username": "testuser",
+        "email": "test@example.com",
+        "first_name": "Test",
+        "last_name": "User",
+        "phone_number": "1234567890",
+        "address_id": 1,
+        "role": "USER",
+        "status": "ACTIVE",
+        "last_login_at": None,
+        "created_at": "2024-11-07T18:22:38.816855Z",
+        "updated_at": "2024-11-07T18:22:38.816855Z",
+    },
+    {
+        "id": 1,
+        "street": "123 Test St",
+        "city": "Test City",
+        "state": "Test State",
+        "postal_code": "12345",
+        "country": "Test Country",
+    }
+]
