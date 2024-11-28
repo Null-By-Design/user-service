@@ -146,4 +146,4 @@ def test_get_user_not_found(user_repository, mock_db_pool, mock_db_connection, m
                                address_id, role, status, last_login_at, created_at, updated_at
                         FROM "user"
                         WHERE id = %s;
-                    """, 999)
+                    """, (999,))
