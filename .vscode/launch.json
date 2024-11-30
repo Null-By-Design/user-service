@@ -20,7 +20,7 @@
             "request": "launch",
             "module": "pytest",
             "args": [
-                "tests/test_user_repository.py::test_get_user_success"  // Update this with the specific test
+                "tests/test_user_repository.py::test_update_user_not_found"  // Update this with the specific test
             ],
             "justMyCode": false
         }

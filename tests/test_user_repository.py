@@ -5,14 +5,19 @@ from fastapi import HTTPException, status
 from psycopg2 import errors
 
 from src.api.repository.user_repository import UserRepository
-from tests.test_data import address, get_user, save_user_dict, get_user_dict
+from tests.test_data import address, get_user, save_user_dict, get_user_dict, update_user_dict
 
 
 # Test fixtures
 @pytest.fixture
-def user_repository():
-    return UserRepository()
+def mock_user_repository():
+    mock_repo = MagicMock(spec=UserRepository)
+    mock_repo.update_user = MagicMock()  
+    return mock_repo
 
+@pytest.fixture
+def user_repository(mock_db_connection):
+    return UserRepository(db=mock_db_connection)
 
 @pytest.fixture
 def mock_db_cursor():
@@ -20,7 +25,6 @@ def mock_db_cursor():
     cursor.__enter__ = Mock(return_value=cursor)
     cursor.__exit__ = Mock(return_value=None)
     return cursor
-
 
 @pytest.fixture
 def mock_db_connection(mock_db_cursor):
@@ -44,11 +48,9 @@ def mock_db_pool(mock_db_connection):
 def sample_address():
     return address
 
-
 @pytest.fixture
 def sample_user(sample_address):
     return get_user(sample_address)
-
 
 def test_check_db_connection_success(user_repository, mock_db_pool):
     # Arrange
@@ -134,16 +136,51 @@ def test_get_user_success(user_repository, mock_db_pool, mock_db_connection, moc
 
 def test_get_user_not_found(user_repository, mock_db_pool, mock_db_connection, mock_db_cursor):
     # Simulate no user found in the database
-    mock_db_cursor.fetchone.return_value = None
+    mock_db_pool.get_connection.return_value = mock_db_connection
+    mock_db_connection.cursor.return_value = mock_db_cursor
+    mock_db_cursor.fetchone.return_value = None  
 
     # Call the repository method
     user = user_repository.get_user(999)  # Non-existent user ID
-
+    
     # Assertions
     assert user is None
+    
     mock_db_cursor.execute.assert_called_once_with("""
                         SELECT id, username, email, first_name, last_name, phone_number,
                                address_id, role, status, last_login_at, created_at, updated_at
                         FROM "user"
                         WHERE id = %s;
-                    """, 999)
+                    """, (999,))
+    
+# Tests for update method (PUT)
+
+def test_update_user_success(
+    user_repository, mock_db_pool, mock_db_connection, mock_db_cursor, sample_user
+):
+    # Arrange
+    mock_db_pool.get_connection.return_value = mock_db_connection
+    mock_db_cursor.fetchone.side_effect = update_user_dict  # Mock getting the existing user
+
+    # Act
+    updated_user = user_repository.update_user(1, sample_user)
+
+    # Assertions
+    assert updated_user is not None
+    assert updated_user.username == sample_user.username
+    assert updated_user.email == sample_user.email
+    mock_db_connection.commit.assert_called_once()
+
+def test_update_user_not_found(
+    user_repository, mock_db_pool, mock_db_connection, mock_db_cursor, sample_user
+):
+    # Arrange
+    mock_db_pool.get_connection.return_value = mock_db_connection
+    mock_db_cursor.fetchone.return_value = None  # Simulate that user is not found
+
+    # Act
+    updated_user = user_repository.update_user(1, sample_user)  # Non-existent user ID
+    
+    #Assertions
+    assert updated_user is None
+    mock_db_connection.commit.assert_not_called()

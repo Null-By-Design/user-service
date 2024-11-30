@@ -4,9 +4,9 @@ import pytest
 from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
 from unittest.mock import MagicMock
-from httpx import AsyncClient 
-
- 
+from httpx import AsyncClient, ASGITransport
+from fastapi import HTTPException
+from src.api.model.schemas import UserUpdateRequest 
 
 from src.api.controller.user_controller import router
 from src.api.dependencies.provider import get_user_service
@@ -18,7 +18,6 @@ from tests.test_data import (
     user_request_valid_json,
     user_response_valid_json,
 )
-
 
 # Test fixtures
 @pytest.fixture
@@ -176,10 +175,108 @@ async def test_get_user_not_found(
 
     # Make request
     user_id = 999  # Non-existent user ID
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)  # Explicit ASGITransport usage
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         response = await ac.get(f"/api/v1/user/{user_id}")
 
     # Assertions
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert "User not found" in response.content.decode()
     mock_user_service.get_user.assert_called_once_with(user_id)
+    
+# Test for PUT /user/{id}
+@pytest.mark.asyncio
+async def test_update_user_success(
+    app, client, mock_user_service, mock_get_user_service, valid_user_request, valid_user_service_response
+):
+    # Override the dependency
+    app.dependency_overrides[get_user_service] = mock_get_user_service
+
+    user_id = 1  # Example user ID
+    mock_user_service.get_user = AsyncMock(return_value=valid_user_service_response)
+    mock_user_service.update_user = AsyncMock(return_value=valid_user_service_response)
+
+    # Convert the valid_user_request to UserUpdateRequest object if necessary
+    user_update_request = UserUpdateRequest(**valid_user_request)
+
+    # Make request
+    response = client.put(f"/api/v1/user/{user_id}", json=valid_user_request)
+
+
+    # Assertions
+    assert response.status_code == status.HTTP_200_OK
+    assert response.content.decode() == user_response_valid_json
+    mock_user_service.get_user.assert_called_once_with(user_id)
+
+    # Ensure update_user was called with the correct parameters
+    mock_user_service.update_user.assert_called_once_with(user_id, user_update_request)
+
+
+@pytest.mark.asyncio
+async def test_update_user_not_found(
+    app, client, mock_user_service, mock_get_user_service, valid_user_request
+):
+    # Override the dependency
+    app.dependency_overrides[get_user_service] = mock_get_user_service
+
+    # Simulate user not found (get_user returns None)
+    user_id = 999  # Non-existent user ID
+    mock_user_service.get_user = AsyncMock(return_value=None)
+
+    # Make request
+    response = client.put(f"/api/v1/user/{user_id}", json=valid_user_request)
+
+    # Assertions
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert "User not found" in response.content.decode()
+    mock_user_service.get_user.assert_called_once_with(user_id)
+    mock_user_service.update_user.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_update_user_invalid_data(app, client, mock_user_service, mock_get_user_service):
+    # Override the dependency
+    app.dependency_overrides[get_user_service] = mock_get_user_service
+    user_id = 1  # Example user ID with invalid data
+    invalid_request_data = {"invalid_field": "invalid_value"}  # Invalid for UserUpdateRequest
+
+    # Simulate the get_user call with a valid response
+    mock_user_service.get_user = AsyncMock(return_value=user_minimal)
+
+    # Make request
+    response = client.put(f"/api/v1/user/{user_id}", json=invalid_request_data)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    mock_user_service.update_user.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_update_user_http_exception(
+    app, client, mock_user_service, mock_get_user_service, valid_user_request
+):
+    # Override the dependency
+    app.dependency_overrides[get_user_service] = mock_get_user_service
+
+    user_id = 1  # Example user ID
+
+    # Simulate get_user success
+    mock_user_service.get_user = AsyncMock(return_value=user_minimal)
+    
+    # Convert valid_user_request to UserUpdateRequest if needed
+    user_update_request = UserUpdateRequest(**valid_user_request)
+    
+    # Setup mock to raise an HTTPException
+    mock_user_service.update_user = AsyncMock(
+        side_effect=HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    )
+
+    # Make request
+    response = client.put(f"/api/v1/user/{user_id}", json=valid_user_request)
+
+    # Assertions
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json()["detail"] == "User not found"
+    mock_user_service.get_user.assert_called_once_with(user_id)
+    mock_user_service.update_user.assert_called_once_with(user_id, user_update_request)
