@@ -126,7 +126,7 @@ class UserRepository:
                         FROM "user"
                         WHERE id = %s;
                     """
-                    cur.execute(query, user_id)
+                    cur.execute(query, (user_id,))
                     result = cur.fetchone()
 
                     if result:
@@ -147,7 +147,7 @@ class UserRepository:
             FROM address
             WHERE id = %s;
         """
-        cur.execute(address_query, (id))
+        cur.execute(address_query, (id,))
         address_result = cur.fetchone()
         if address_result:
             return Address(
