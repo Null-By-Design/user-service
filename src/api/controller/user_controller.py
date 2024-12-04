@@ -4,6 +4,7 @@ from src.api.dependencies.provider import get_user_service
 from src.api.mapper.user_mapper import UserMapper
 from src.api.model.schemas import UserRegistrationRequest, UserResponse
 from src.api.service.user_service import UserService
+from src.api.model.schemas import UserUpdateRequest
 
 
 router = APIRouter(prefix="/api/v1")
@@ -46,7 +47,6 @@ async def register_user(
     status_code=status.HTTP_200_OK,
     responses={404: {"description": "User not found"}},
 )
-
 async def get_user(
     id: int,
     user_service: UserService = Depends(get_user_service),
@@ -69,4 +69,33 @@ async def get_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal server error: {str(e)}",
+        )
+
+@router.put(
+    "/user/{id}",
+    response_model=UserResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+       200: {"description": "User updated successfully"},
+       400: {"description": "Bad request, invalid update data"},
+       404: {"description": "User not found"},
+       422: {"description": "Validation error"},
+       500: {"description": "Internal server error"}
+   },
+)
+async def update_user(
+    id: int,
+    request: UserUpdateRequest,
+    user_service: UserService = Depends(get_user_service),
+) -> UserResponse:
+    try:
+        user = UserMapper.to_domain(request)
+        updated_user = await user_service.update_user(id, user)
+        return UserMapper.to_response(updated_user)
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid update data: {str(e)}",
         )
