@@ -56,3 +56,23 @@ class UserResponse(BaseModel):
     lastLoginAt: Optional[datetime] = None
     createdAt: datetime
     updatedAt: datetime
+
+
+class UserUpdateRequest(BaseModel):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    phoneNumber: Optional[str] = None
+    address: Optional[Address] = None
+    role: Optional[UserRole] = None
+    status: Optional[UserStatus] = None
+    
+    @model_validator(mode="before")
+    def validate_at_least_one_field(cls, values):
+        if not any(values.values()):  # Check if all fields are None
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="At least one field must be provided for update.",
+            )
+        return values
